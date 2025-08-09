@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Image Experience</title>
+    <link rel="stylesheet" href="hole.css">
+</head>
+<body>
+    <!-- Initial Welcome Page -->
+    <div class="page initial-page active">
+        <div class="welcome-box">
+            <h1 class="box-title">Welcome</h1>
+            <p class="box-subtitle">Get ready for an amazing visual journey</p>
+            <button class="box-start-btn" onclick="showUploadPage()">Start</button>
+        </div>
+    </div>
+
+    <!-- Upload Page -->
+    <div class="page upload-page">
+        <div class="upload-area" onclick="document.getElementById('file-input').click()">
+            <div class="upload-icon">📷</div>
+            <div class="upload-text">Click here to upload your image<br><small>JPG, PNG, GIF supported</small></div>
+        </div>
+        <input type="file" id="file-input" accept="image/*" onchange="handleImageUpload(event)">
+    </div>
+
+    <!-- Display Page -->
+    <div class="page display-page">
+        <div class="image-container" onclick="startSwirl()">
+            <img class="uploaded-image" id="uploaded-image" src="" alt="Uploaded Image">
+            <div class="click-hint" id="click-hint">Click anywhere to start the cosmic journey</div>
+        </div>
+    </div>
+
+    <!-- Black Screen -->
+    <div class="page black-screen"></div>
+
+    <script>
+        let currentPage = 0;
+        const pages = document.querySelectorAll('.page');
+
+        function showPage(index) {
+            pages.forEach(page => page.classList.remove('active'));
+            pages[index].classList.add('active');
+            currentPage = index;
+        }
+
+        function showUploadPage() {
+            showPage(1);
+        }
+
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const uploadedImage = document.getElementById('uploaded-image');
+                    uploadedImage.src = e.target.result;
+                    
+                    setTimeout(() => {
+                        showPage(2);
+                        setTimeout(() => {
+                            const hint = document.getElementById('click-hint');
+                            if (hint) hint.style.opacity = '1';
+                        }, 1000);
+                    }, 500);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function startSwirl() {
+            const imageContainer = document.querySelector('.image-container');
+            const clickHint = document.getElementById('click-hint');
+            
+            if (clickHint) {
+                clickHint.style.opacity = '0';
+            }
+            
+            imageContainer.onclick = null;
+            imageContainer.classList.add('swirling');
+            
+            setTimeout(() => {
+                showPage(3);
+            }, 3000);
+        }
+
+        const uploadArea = document.querySelector('.upload-area');
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = 'rgba(255, 255, 255, 0.8)';
+            uploadArea.style.background = 'rgba(255, 255, 255, 0.2)';
+        });
+        
+        uploadArea.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = 'rgba(255, 255, 255, 0.5)';
+            uploadArea.style.background = 'rgba(255, 255, 255, 0.1)';
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            const files = e.dataTransfer.files;
+            if (files.length > 0 && files[0].type.startsWith('image/')) {
+                const event = { target: { files: files } };
+                handleImageUpload(event);
+            }
+            uploadArea.style.borderColor = 'rgba(255, 255, 255, 0.5)';
+            uploadArea.style.background = 'rgba(255, 255, 255, 0.1)';
+        });
+    </script>
+</body>
+</html>
